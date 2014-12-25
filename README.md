@@ -16,7 +16,7 @@ To download:
 Motives:
     
     I wanted to learn C, so once I took an online video lecture series on Lynda.com
-    (http://www.lynda.com/Eclipse-tutorials/CC-Essential-Training/94343-2.html) 
+    [http://www.lynda.com/Eclipse-tutorials/CC-Essential-Training/94343-2.html] 
     I decided I needed to test what I learned.  I often found myself in school figuring 
     out what my GPA would be if I got 'X' in a class.  I rolled with that idea and decided 
     that to test my C knowledge I would make a GPA Calculator application.
