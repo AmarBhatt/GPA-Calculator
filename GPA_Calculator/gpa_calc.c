@@ -70,15 +70,17 @@ void displayCourses(struct course courses[], int size){
  * grade_points -> Current grade points user has
  * units -> Current amount of units the user has
  */
-float calculateGPA(const struct course courses[], int size, float grade_points, int units){
+void calculateGPA(const struct course courses[], int size, float grade_points, int units, float *tgpa, float *sgpa){
 	float points = grade_points;
-	float cred = units;
+	int cred = units;
 	int i;
 	for (i = 0; i < size; i++){
 		points += courses[i].credits * courses[i].grade; // add to the total points
 		cred += courses[i].credits; // add to the total credits
 	}
-	return points/cred; // GPA = Grade Points / Number of Credits
+	// GPA = Grade Points / Number of Credits
+	*tgpa = points/cred; // total GPA
+	*sgpa = (points - grade_points)/(cred - units); // Semester GPA
 }
 
 /*
@@ -181,7 +183,7 @@ void getCourses(struct course courses[], int *size){
 		courses[i].grade = c.grade;
 		i++; // Add 1 to the number of courses added
 		//Prompt user to enter another course
-		printf("\nCourse Added!\n\n[%d]\tTo add another course press (y).\n\tOtherwise press enter to exit course addition.\n", i+3);
+		printf("\n\tCourse Added!\n\n[%d]\tTo add another course press (y).\n\tOtherwise press enter to exit course addition.\n", i+3);
 		printf("\t");
 		stop = getchar(); // get user input
 		getchar(); //clear buffer of Enter
@@ -199,7 +201,8 @@ int main (int argc, char ** argv){
 	int units; // number of credits taken
 	int numCourses = 0; // number of courses
 	struct course courses[8]; // list of courses
-	float gpa;
+	float gpa; //total GPA
+	float semester_gpa; // semester GPA
 	char c; // used to detect whether courses are needed to be entered
 	char temp[50]; // temp variable to get user input from stdin
 
@@ -213,21 +216,9 @@ int main (int argc, char ** argv){
 	puts("+                         Follow the on screen prompts.                       +");
 	puts("+++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++");
 	puts("\n");
-	// Get Current Grade Points
-	puts("[1]\tEnter your total grade points:");
-	printf("\t");
-	fgets(temp, 50, stdin); // get user input
-	result = sscanf(temp,"%f",&grade_points); // format user input
-	while (result != 1){ // Prompt if invalid input
-		puts("\tRead failed. Please enter a valid number:");
-		printf("\t");
-		fgets(temp, 50, stdin); // read input again
-		result = sscanf(temp,"%f",&grade_points); // format user input
-	}
-	printf("\nYou entered: %.3f grade points\n\n", grade_points); // echo user input and round to 3 decimal places
 
 	// Get Current Credits Taken
-	puts("[2]\tEnter your total credits taken:");
+	puts("[1]\tEnter your total credits completed:");
 	printf("\t");
 	fgets(temp, 50, stdin); // get user input
 	result = sscanf(temp,"%d",&units); // format user input
@@ -237,9 +228,23 @@ int main (int argc, char ** argv){
 		fgets(temp, 50, stdin); // read input again
 		result = sscanf(temp,"%d",&units); // format user input
 	}
+	printf("\n\tYou entered: %d credits\n\n", units); // echo user input
 
-	printf("\nYou entered: %d credits\n", units); // echo user input
-	printf("\nYour Current GPA is: %.3f\n\n", grade_points/units); //Calculate current GPA; GPA = Grade Points/Credits Taken
+	// Get Current Grade Points
+	puts("[2]\tEnter your total grade points earned:");
+	puts("\t(Total grade points are the sum of the grade received in each course,\n\tmultiplied by the number of credits awarded for each course.)");
+	printf("\t");
+	fgets(temp, 50, stdin); // get user input
+	result = sscanf(temp,"%f",&grade_points); // format user input
+	while (result != 1){ // Prompt if invalid input
+		puts("\tRead failed. Please enter a valid number:");
+		printf("\t");
+		fgets(temp, 50, stdin); // read input again
+		result = sscanf(temp,"%f",&grade_points); // format user input
+	}
+	printf("\n\tYou entered: %.3f grade points\n", grade_points); // echo user input and round to 3 decimal places
+
+	printf("\n\tYour Current GPA: %.3f\n\n", grade_points/units); //Calculate current GPA; GPA = Grade Points/Credits Taken
 	// Ask user if they want to enter courses
 	puts("[3]\tPress 'y' to enter courses to calculate your estimated GPA.\n\tOtherwise press enter.\n");
 	printf("\t");
@@ -248,8 +253,9 @@ int main (int argc, char ** argv){
 		getchar(); // clear input
 		getCourses(courses, &numCourses); // get courses
 		displayCourses(courses, numCourses); // display entered courses
-		gpa = calculateGPA(courses, numCourses, grade_points, units); // calculate new gpa
-		printf("Your estimated GPA is %.3f\n\n\n", gpa); // echo estimated gpa round to 3 decimal places
+		calculateGPA(courses, numCourses, grade_points, units, &gpa, &semester_gpa); // calculate new gpa
+		printf("\nYour estimated semester GPA:\t%.3f\n\n", semester_gpa); // echo estimated semester gpa round to 3 decimal places
+		printf("Your estimated total GPA:\t%.3f\n\n\n", gpa); // echo estimated gpa round to 3 decimal places
 	}
 	puts("Press Enter to Exit..."); // Prompt user to press enter before exiting so they can view results
 	getchar();
