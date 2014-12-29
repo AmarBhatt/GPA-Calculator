@@ -15,6 +15,8 @@
 #include <stdio.h>
 #include <string.h>
 
+#define MAX_COURSE 8 // number of courses to be added
+
 // Enum for Grades
 enum {
 	A,Am,Bp,B,Bm,Cp,C,Cm,D,F
@@ -54,7 +56,7 @@ void displayCourses(struct course courses[], int size){
 	puts("+----------------------------------------------------+");
 	for (i = 0; i < size; i++){
 		//puts("+                                                    +");
-		printf("\t%d).%s\t\tCredits: %d\tExpected Grade: %.3f\n",i+1,courses[i].name, courses[i].credits, courses[i].grade);
+		printf("\t%d). %s\t\tCredits: %d\tExpected Grade: %.3f\n",i+1,courses[i].name, courses[i].credits, courses[i].grade);
 		//puts("+                                                    +");
 		puts("+----------------------------------------------------+");
 	}
@@ -129,7 +131,7 @@ void displayGradeMenu() {
 /*
  * getCourses
  *
- * Prompts user to enter in up to 8 courses with credits and estimated grade
+ * Prompts user to enter in up to MAX_COURSE courses with credits and estimated grade
  *
  * courses[] -> Array of course structs
  * size -> Pointer to number of courses added at the end of the function
@@ -143,7 +145,7 @@ void getCourses(struct course courses[], int *size){
 	int result; //temp variable for detecting success of user input
 	char temp[50]; // temp variable to get user input from stdin
 
-	while((stop == 'y') && (i < 8)){ // if user did not press y or if 8 courses have been added, break
+	while((stop == 'y') && (i < MAX_COURSE)){ // if user did not press y or if MAX_COURSE courses have been added, break
 		// Get course name
 		printf("\n");
 		printf("\tDetails for Course %d\n\n", i+1);
@@ -182,11 +184,20 @@ void getCourses(struct course courses[], int *size){
 		courses[i].credits = c.credits;
 		courses[i].grade = c.grade;
 		i++; // Add 1 to the number of courses added
-		//Prompt user to enter another course
-		printf("\n\tCourse Added!\n\n[%d]\tTo add another course press (y).\n\tOtherwise press enter to exit course addition.\n", i+3);
-		printf("\t");
-		stop = getchar(); // get user input
-		getchar(); //clear buffer of Enter
+		//Prompt user to enter another course if MAX_COURSE courses have not been added
+		if (i >= MAX_COURSE){
+			puts("\n\tCourse Added!\n\n\tMaximum number of courses have been entered.\n\tPress enter to get results.\n\n");
+			getchar();
+		}else{
+			printf("\n\tCourse Added!\n\n[%d]\tTo add another course press (y).\n\tOtherwise press enter to exit course addition.\n", i+3);
+			printf("\t");
+			stop = getchar(); // get user input
+
+			if (stop == 'y'){
+				getchar(); //clear buffer of Enter
+
+			}
+		}
 	}
 	*size = i; // store number of courses for return
 }
@@ -200,7 +211,7 @@ int main (int argc, char ** argv){
 	int result; // temp variable for detecting success of user input
 	int units; // number of credits taken
 	int numCourses = 0; // number of courses
-	struct course courses[8]; // list of courses
+	struct course courses[MAX_COURSE]; // list of courses
 	float gpa; //total GPA
 	float semester_gpa; // semester GPA
 	char c; // used to detect whether courses are needed to be entered
@@ -218,7 +229,7 @@ int main (int argc, char ** argv){
 	puts("\n");
 
 	// Get Current Credits Taken
-	puts("[1]\tEnter your total credits completed:");
+	puts("[1]\tEnter your total credits completed:\n\tThis can be found on your transcript named either as credits or units.");
 	printf("\t");
 	fgets(temp, 50, stdin); // get user input
 	result = sscanf(temp,"%d",&units); // format user input
@@ -232,7 +243,7 @@ int main (int argc, char ** argv){
 
 	// Get Current Grade Points
 	puts("[2]\tEnter your total grade points earned:");
-	puts("\t(Total grade points are the sum of the grade received in each course,\n\tmultiplied by the number of credits awarded for each course.)");
+	puts("\t(Total grade points are the sum of the grade received in each course,\n\tmultiplied by the number of credits awarded for each course. This can\n\tbe found on your transcript named either as points or grade points.)");
 	printf("\t");
 	fgets(temp, 50, stdin); // get user input
 	result = sscanf(temp,"%f",&grade_points); // format user input
